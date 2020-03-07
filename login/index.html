@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-cn"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../js/jquery-1.12.4.min.js"></script>
+    <title>后台登录</title>
+<style>
+    * {
+        margin: 0px
+    }
+
+    .p-content {
+        width: 350px;
+        height: 250px;
+        padding: 50px;
+        margin: 10%auto;
+        border-radius: 5px
+    }
+
+    .m-content{
+        width: 95%;
+        margin: 100px auto;
+        
+    }
+    .login {
+        width: 100%;
+        height: 270px;
+        border-radius: 5px;
+        border: 1px solid#CCC;
+        text-align: center;
+        padding-top: 10%;
+        background-color: #fff
+    }
+
+    input {
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        margin: 10px
+    }
+    .m-p-auth{
+        width: 214px;
+        margin: auto;
+    }
+
+    button {
+        width: 100px;
+        font-size: 18px;
+        color: #fff;
+        background-color: rgb(6, 133, 6)
+    }
+
+    body {
+        background-color: rgba(92, 92, 92, 0.781)
+    }
+    #embg {
+	width: 337px;
+	height: 120px;
+	background-color: #fff;
+	padding: 10px;
+	border-radius: 5px;
+	text-align: center;
+}
+</style>
+</head>
+
+
+<body>
+    <div id="content" class="p-content">
+        <div class="login">
+            <p>后台管理</p>
+            <p><input type="text" id="username" placeholder="用户名"></p>
+            <p><input type="password" id="userpasswd" placeholder="密码"></p>
+            <p><input style="width: 55px;" type="text" id="auth" placeholder="验证码"><span id="auth">
+                <img style="width: 100px;height: 30px;margin:-5px 5px;" src="./login_Safety/auth_img.php" onclick="this.src='./login_Safety/auth_img.php?' + Math.random();">
+            </span></p>
+            <button onclick="login()">登录</button>
+            <div id="login_info"></div>
+        </div>
+    </div>
+    <script>
+        function get_ajax(options) {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", options.url, true);
+            xhr.send();
+            xhr.onload = function () {
+                options.success(xhr.responseText)
+            }
+        }
+
+        function post_ajax(options) {
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", options.url, true);
+            xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded", true);
+            xhr.send(options.data);
+            xhr.onload = function () {
+                options.success(xhr.responseText)
+            }
+        }
+    </script>
+    <script>
+        function login(params) {
+            let username = document.getElementById("username").value;
+            let userpasswd = document.getElementById("userpasswd").value;
+            let userauth = document.getElementById("auth").value;
+            if(userauth==""){document.getElementById("login_info").innerHTML = "请输入验证码";return}
+            if (!username == "" && !userpasswd == '') {
+                let send_data = "username=" + username + "&userpasswd=" + userpasswd+"&auth="+userauth;
+                post_ajax({
+                    url: "./login_Safety/login_Safety.php",
+                    data: send_data,
+                    success: function name(params) {
+                        if (params == "") {
+                            document.getElementById("login_info").innerHTML = "服务器通信错误";
+                            return;
+                        }
+                        let data = eval('(' + params + ')');
+                        if (data.code == 1) {
+                            document.getElementById("login_info").innerHTML = data.info;
+                            window.setTimeout("window.location='../admin'", 3000)
+                        }if(data.code==2){
+                            document.getElementById("login_info").innerHTML = data.info;
+                            alert("服务器要求您验证邮箱");
+                            $("#content").css("display","none");
+                            $("body").append("<div id='authmail' class='p-content'><div id='embg'><input type='text' placeholder='验证码'><button id='sema'>确定</button></div></div>");
+                            $.ajax({
+                                type: "post",
+                                url: "../config/email.php",
+                                data: "data",
+                                dataType: "json",
+                                success: function (response) {
+                                    if(response.code=="1"){
+                                        alert("发送成功");
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            document.getElementById("login_info").innerHTML = data.info
+                        }
+                    }
+                })
+            } else {
+                document.getElementById("login_info").innerHTML = "用户名或密码不能为空";
+            }
+        }
+    </script>
+    <script>
+        function browserRedirect() {
+                var sUserAgent = navigator.userAgent.toLowerCase();
+                if (/ipad|iphone|midp|rv:1.2.3.4|ucweb|android|windows ce|windows mobile/.test(sUserAgent)) {
+                    document.getElementById("content").classList.remove("p-content");
+                    document.getElementById("content").classList.add("m-content");
+                    document.getElementsByTagName("p")[3].classList.add("m-p-auth");
+
+                } else {}
+            }
+        browserRedirect();
+
+    </script>
+
+
+</body></html>

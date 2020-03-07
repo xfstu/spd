@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>管理员注册</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        body {
+            background-image: url(img/zhuce.jpg);
+            background-repeat: no-repeat;
+        }
+
+        .login {
+            width: 250px;
+            height: 250px;
+            margin: 5% auto;
+            padding: 60px;
+            font-size: 20px;
+            background-color: rgb(207, 207, 207, 0.3);
+        }
+
+        input {
+            width: 150px;
+            height: 22px;
+            margin-top: 10px;
+        }
+
+        .but {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .but input {
+            width: 120px;
+            height: 35px;
+            line-height: 40px;
+            border-radius: 5px;
+            line-height: 30px;
+            font-size: 18px;
+            
+        }
+
+        a {
+            font-size: 14px;
+        }
+
+        .but span {
+            font-size: 14px;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login">
+        <span>用户名：</span><input type="text" id="user" placeholder="您的用户名"><br>
+        <span>密&emsp;码：</span><input type="password" id="passwd" placeholder="您的密码"><br>
+        <span>邮&emsp;箱：</span><input type="email" id="email" placeholder="找回密码重要凭据"><br>
+        <span>授权码：</span><input type="text" id="key" placeholder="授权码(如果有)">
+        <input style="width: 120px;height: 27px;padding: 0px 5px;" type="text" id="auth" placeholder="验证码"><img style="width: 100px;height: 30px;margin:-10px 5px;" src="../login/login_Safety/auth_img.php" onclick="this.src='../login/login_Safety/auth_img.php?' + Math.random();">
+        <div class="but">
+            <input type="button" value="注册" onclick="register()"><br>
+            <span id="info"></span>
+        </div>
+        <p style="font-size: 12px;color:#f40">说明：</p>
+        <p style="font-size: 12px;color:#f40">不要带有特殊符号,如“<”，“>”</p>
+    </div>
+
+
+</body>
+<script>
+    function get_ajax(options) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", options.url, true);
+        xhr.send();
+        xhr.onload = function () {
+            options.success(xhr.responseText)
+        }
+    }
+
+    function post_ajax(options) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", options.url, true);
+        xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded", true);
+        xhr.send(options.data);
+        xhr.onload = function () {
+            options.success(xhr.responseText)
+        }
+    }
+</script>
+<script>
+    function register() {
+        let user = document.getElementById("user").value;
+        let passwd = document.getElementById("passwd").value;
+        let key = document.getElementById("key").value;
+        let email=document.getElementById("email").value;
+        let auth=document.getElementById("auth").value;
+        let send_data = "user=" + user + "&passwd=" + passwd + "&key=" + key+"&email="+email+"&auth="+auth;
+        post_ajax({
+            url: "./data.php",
+            data: send_data,
+            success: function (data_info) {
+                let data = eval('(' + data_info + ')');
+                if(data.code==1){
+                    document.getElementById("info").innerHTML = data.info+"<a href='../login'>去登录</a>";
+                }else{
+                    document.getElementById("info").innerHTML = data.info;
+
+                }
+            }
+        });
+    }
+</script>
+
+</html>
